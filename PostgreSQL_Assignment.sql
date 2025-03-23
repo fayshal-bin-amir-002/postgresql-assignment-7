@@ -47,12 +47,11 @@ INSERT INTO books (title, author, price, stock, published_year) VALUES
   ('The Divine Comedy', 'Dante Alighieri', 22.50, 8, '1320'),
   ('Les Misérables', 'Victor Hugo', 19.99, 14, '1862'),
   ('Dracula', 'Bram Stoker', 12.75, 33, '1897'),
-  ('The Odyssey', 'Homer', 17.50, 22, '8th century BC'),
+  ('The Odyssey', 'Homer', 17.50, 22, '1971'),
   ('Don Quixote', 'Miguel de Cervantes', 21.00, 0, '1605'),
   ('Frankenstein', 'Mary Shelley', 10.99, 27, '1818'),
   ('The Picture of Dorian Gray', 'Oscar Wilde', 11.25, 31, '1890');
 
-SELECT * FROM books;
 
 -- insert data into customers table
 INSERT INTO customers (name, email) VALUES
@@ -67,7 +66,6 @@ INSERT INTO customers (name, email) VALUES
   ('Laura Thomas', 'laurathomas@example.com'),
   ('James White', 'jameswhite@example.com');
 
-SELECT * FROM customers;
 
 INSERT INTO orders (customer_id, book_id, quantity) VALUES
   (1, 2, 3),
@@ -81,7 +79,46 @@ INSERT INTO orders (customer_id, book_id, quantity) VALUES
   (2, 10, 3), 
   (8, 6, 1);
 
-SELECT * FROM orders;
+
+-- 1️⃣ Find books that are out of stock.
+SELECT * FROM books
+  WHERE stock = 0;
+
+-- 2️⃣ Retrieve the most expensive book in the store.
+SELECT * FROM books
+  ORDER BY price DESC
+  LIMIT 1;
+
+
+-- 3️⃣ Find the total number of orders placed by each customer.
+SELECT name, count(*) as total_orders from customers
+  JOIN orders ON customers.id = orders.customer_id
+  GROUP BY name;
+
+-- 4️⃣ Calculate the total revenue generated from book sales.
+SELECT sum(orders.quantity * books.price) as total_revenue FROM orders
+  JOIN books on books.id = orders.book_id;
+
+-- 5️⃣ List all customers who have placed more than one order.
+SELECT name, count(*) as orders_count FROM customers
+  JOIN orders on orders.customer_id = customers.id
+  GROUP BY name;
+
+-- 6️⃣ Find the average price of books in the store.
+SELECT round(avg(price), 2) as avg_book_price FROM books;
+
+-- 7️⃣ Increase the price of all books published before 2000 by 10%.
+UPDATE books
+  SET price = price + ((price * 10) / 100)
+  WHERE published_year::INTEGER < 2000;
+
+-- 8️⃣ Delete customers who haven't placed any orders.
+DELETE FROM customers
+  WHERE id NOT IN (
+    SELECT customer_id FROM orders
+      GROUP BY customer_id ORDER BY customer_id
+  );
+
 
 
 
